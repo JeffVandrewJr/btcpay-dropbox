@@ -5,7 +5,7 @@ from dropbox.exceptions import ApiError, AuthError
 
 # Add OAuth2 access token here.
 # You can generate one for yourself in the App Console.
-TOKEN = ''
+TOKEN = <token>
 
 LOCALFILE = 'backup.tar.gz'
 
