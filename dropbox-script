@@ -3,14 +3,18 @@
 import sys
 import os
 import dropbox
-from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
 
 # Add OAuth2 access token here.
 # You can generate one for yourself in the App Console.
+# TOKEN = os.environ.get('DROPBOX_TOKEN')
 TOKEN = os.environ.get('DROPBOX_TOKEN')
 
 LOCALFILE = 'backup.tar.gz'
+
+file_size = file_size = os.path.getsize(LOCALFILE)
+
+CHUNK_SIZE = 4 * 1024 * 1024
 
 # Check for an access token
 if (len(TOKEN) == 0):
@@ -27,9 +31,25 @@ with open(LOCALFILE, 'rb') as f:
     # We use WriteMode=overwrite to make sure that the settings in the file
     # are changed on upload
     print("Uploading " + LOCALFILE + " to Dropbox ...")
+    if file_size <= CHUNK_SIZE:
+        print(dbx.files_upload(f.read(), '/backup.tar.gz'))
     try:
-        dbx.files_upload(
-                f.read(), '/backups.tar.gz', mode=WriteMode('overwrite'))
+        upload_session_start_result = \
+                dbx.files_upload_session_start(f.read(CHUNK_SIZE))
+        cursor = dropbox.files.UploadSessionCursor(
+                session_id=upload_session_start_result.session_id,
+                offset=f.tell())
+        commit = dropbox.files.CommitInfo(path='/backup.tar.gz.')
+
+        while f.tell() < file_size:
+            if ((file_size - f.tell()) <= CHUNK_SIZE):
+                print(dbx.files_upload_session_finish(
+                        f.read(CHUNK_SIZE), cursor, commit))
+            else:
+                dbx.files_upload_session_append(f.read(CHUNK_SIZE),
+                                                cursor.session_id,
+                                                cursor.offset)
+                cursor.offset = f.tell()
     except ApiError as err:
         # This checks for the specific error where a user doesn't have
         # enough Dropbox space quota to upload this file
