@@ -39,7 +39,7 @@ with open(LOCALFILE, 'rb') as f:
         cursor = dropbox.files.UploadSessionCursor(
                 session_id=upload_session_start_result.session_id,
                 offset=f.tell())
-        commit = dropbox.files.CommitInfo(path='/backup.tar.gz.')
+        commit = dropbox.files.CommitInfo(path='/backup.tar.gz')
 
         while f.tell() < file_size:
             if ((file_size - f.tell()) <= CHUNK_SIZE):
