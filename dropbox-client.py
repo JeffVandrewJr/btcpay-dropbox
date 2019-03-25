@@ -1,11 +1,12 @@
 import sys
+import os
 import dropbox
 from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError, AuthError
 
 # Add OAuth2 access token here.
 # You can generate one for yourself in the App Console.
-TOKEN = <token>
+TOKEN = os.environ.get('DROPBOX_TOKEN')
 
 LOCALFILE = 'backup.tar.gz'
 
