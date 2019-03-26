@@ -5,12 +5,10 @@ import os
 import dropbox
 from dropbox.exceptions import ApiError, AuthError
 
-# Add OAuth2 access token here.
 # You can generate one for yourself in the App Console.
-# TOKEN = os.environ.get('DROPBOX_TOKEN')
 TOKEN = os.environ.get('DROPBOX_TOKEN')
 
-LOCALFILE = '/data/backup.tar.gz'
+LOCALFILE = '/data/' + str(sys.argv[1])
 
 file_size = file_size = os.path.getsize(LOCALFILE)
 
@@ -28,18 +26,16 @@ except AuthError:
     sys.exit("ERROR: Invalid access token; try re-generating an \
             access token from the app console on the web.")
 with open(LOCALFILE, 'rb') as f:
-    # We use WriteMode=overwrite to make sure that the settings in the file
-    # are changed on upload
     print("Uploading " + LOCALFILE + " to Dropbox ...")
     if file_size <= CHUNK_SIZE:
-        print(dbx.files_upload(f.read(), '/backup.tar.gz'))
+        print(dbx.files_upload(f.read(), f'/{sys.argv[1]}'))
     try:
         upload_session_start_result = \
                 dbx.files_upload_session_start(f.read(CHUNK_SIZE))
         cursor = dropbox.files.UploadSessionCursor(
                 session_id=upload_session_start_result.session_id,
                 offset=f.tell())
-        commit = dropbox.files.CommitInfo(path='/backup.tar.gz')
+        commit = dropbox.files.CommitInfo(path=f'/{sys.argv[1]}')
 
         while f.tell() < file_size:
             if ((file_size - f.tell()) <= CHUNK_SIZE):
