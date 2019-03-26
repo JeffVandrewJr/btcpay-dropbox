@@ -6,4 +6,4 @@ COPY . /btcpay-dropbox
 
 RUN pip install dropbox
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["python3", "dropbox-script.py"]
