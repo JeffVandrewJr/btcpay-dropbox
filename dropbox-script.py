@@ -10,7 +10,7 @@ from dropbox.exceptions import ApiError, AuthError
 # TOKEN = os.environ.get('DROPBOX_TOKEN')
 TOKEN = os.environ.get('DROPBOX_TOKEN')
 
-LOCALFILE = 'backup.tar.gz'
+LOCALFILE = '/data/backup.tar.gz'
 
 file_size = file_size = os.path.getsize(LOCALFILE)
 
